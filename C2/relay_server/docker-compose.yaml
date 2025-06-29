@@ -1,0 +1,25 @@
+
+services:
+  relay-server:
+    build: 
+      context: server
+    container_name: relay-server
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    develop:
+      watch:
+        - path: .
+          target: /app
+          action: rebuild
+  nginx:
+    image: nginx:latest
+    container_name: relay-nginx
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - relay-server
