@@ -160,7 +160,8 @@ def upload():
     dropbox_path = request.form.get('dropbox_path')  # <-- NEW
     if not device_id or not file:
         return jsonify({'status': 'error', 'reason': 'Missing device_id or file'}), 400
-    filename = file.filename  # Use the filename sent by the bot/agent
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{device_id}_{timestamp}.png"
     save_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(save_path)
     print(f"Received screenshot from {device_id}, saved to {save_path}")
@@ -169,7 +170,7 @@ def upload():
     if SAVE_TO_DROPBOX:
         # Use custom dropbox_path if provided, else default
         if not dropbox_path:
-            dropbox_path = f"/{device_id}_screenshot{i}.png"
+            dropbox_path = f"/{filename}"
         try:
             upload_to_dropbox(save_path, dropbox_path)
             print(f"Uploaded {save_path} to Dropbox at {dropbox_path}")
@@ -521,4 +522,5 @@ if __name__ == '__main__':
         asyncio.create_task(device_disconnect_watcher())  # Start disconnect watcher
     bot.setup_hook = setup_hook
     bot.run(BOT_TOKEN)
+
 
